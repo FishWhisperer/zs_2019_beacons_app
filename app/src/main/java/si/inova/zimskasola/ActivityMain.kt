@@ -55,6 +55,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
     var currentBuilding: Building? = null
     var currentFloor: Floor? = null
     var currentRoom: Room? = null
+    var insideGeofence = false
 
     var provider: LocationGooglePlayServicesProvider = LocationGooglePlayServicesProvider()
     var smartLocation: SmartLocation = SmartLocation.Builder(this).logging(true).build()
@@ -324,7 +325,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
     private fun startLocation() {
         // testing start
         // ustvari ograjo okol moje tesne lokacije, drugače je treba ta naslov prebrat iz jsona (naslov stavbe)
-        geofence.create("Tyrševa 30, Maribor")
+        /*geofence.create("Tyrševa 30, Maribor")
         while (!geofence.geocodingSuccess) {
             if (geofence.geocodingFailed) {
                 break
@@ -341,11 +342,11 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
             geofence.geocodingSuccess = false
             geofence.geocodingFailed = false
             startLocation()
-        }
+        }*/
         // testing end
 
         // če mamo več stavb je mormo za vsako posebi nardit ograjo
-        /* if (firestorage.buildings != null) {
+         if (firestorage.buildings != null) {
             for (building in firestorage.buildings!!) {
                 geofence.create(building.description)
                 while (!geofence.geocodingSuccess) {
@@ -353,29 +354,29 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                         break
                     }
                 }
-                if (geofence.geocodingSuccess) {
-                    if (geofence.myFences.size > 0) {
-                        smartLocation.geofencing().add(geofence.myFences[geofence.myFences.size-1]).start(context)
-                        smartLocation.location(provider).start(context)
-                        smartLocation.activity().start(context)
-                    } else {
-                        Log.d(TAG, "Unexpected geofencing error. There were no fences in the array.")
-                    }
-                }
                 if (geofence.geocodingFailed) {
                     geofence.geocodingSuccess = false
                     geofence.geocodingFailed = false
+                    geofence.myFences.clear()
                     startLocation()
                     break
                 }
             }
-            for (fence in geofence.myFences) {
-                smartLocation.geofencing().add(fence).start(context)
+            if (geofence.geocodingSuccess) {
+                if (geofence.myFences.size > 0) {
+                    for (fence in geofence.myFences) {
+                        smartLocation.geofencing().add(geofence.myFences[geofence.myFences.size-1]).start(context)
+                    }
+                } else {
+                    Log.d(TAG, "Unexpected geofencing error. There were no fences in the array.")
+                }
+                smartLocation.location(provider).start(context)
+                smartLocation.activity().start(context)
             }
         } else {
             Log.d("ActivityMain", "Hmmmmmm firestorage is empty but it shouldn't be")
         }
-        */
+
     }
 
     private fun stopLocation() {
@@ -405,7 +406,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                 val inside = geofence.currentlyInside(location, fenceLocation)
                 if (inside != null) {
                     Log.d(TAG, "Inside of the geofence: ${fence.toGeofence()}!")
-
+                    insideGeofence = true
                     /*
                     // v bazi poišči stavbo, ki ima naslov, ki je znotraj te ograje
 
@@ -427,6 +428,9 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                     beaconScanner.start()
                 } else {
                     Log.d(TAG, "Outside of the geofence!")
+                    insideGeofence = false
+                    switchFragment(4)
+
                 }
             }
         } else {
@@ -473,6 +477,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
         fragmentMyLocation.activityMain = this
         fragmentAllLocations.activityMain = this
         fragmentSettings.activityMain = this
+        fragmentError.activityMain = this
         return arrayOf(fragmentMyLocation, fragmentAllLocations, fragmentSettings, fragmentMyLocationLoading, fragmentError)
     }
 
