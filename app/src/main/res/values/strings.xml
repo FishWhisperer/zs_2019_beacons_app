@@ -23,4 +23,6 @@
     <string name="tv_settings_beacons">Beacons</string>
     <string name="tvSettingsOpis">Popularni časi tvojih obiskov tega prostora</string>
     <string name="tvSettingsImeSobe">Soba</string>
+
+    <string name="error_outside_bounds">Nahajaš se izven naše lokacije.\nPoskusi znova, ko prispeš na cilj.</string>
 </resources>

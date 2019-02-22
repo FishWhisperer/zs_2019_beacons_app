@@ -13,6 +13,8 @@ private const val ANIM_LENGTH : Long = 1000
 
 class FragmentError : Fragment() {
 
+    lateinit var activityMain: ActivityMain
+
     lateinit var tvMain: TextView
     lateinit var tvSub: TextView
     lateinit var img: ImageView
@@ -23,6 +25,10 @@ class FragmentError : Fragment() {
         img = root.findViewById(R.id.imageView2) as ImageView
         tvMain = root.findViewById(R.id.tvErrorHeader) as TextView
         tvSub = root.findViewById(R.id.tvErrorSub) as TextView
+
+        if (!activityMain.insideGeofence) {
+            tvSub.text = resources.getString(R.string.error_outside_bounds)
+        }
 
         img.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
         tvMain.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
