@@ -1,6 +1,5 @@
 package si.inova.zimskasola
 
-import android.animation.Animator
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -27,7 +26,7 @@ class FragmentMyLocation : Fragment() {
     lateinit var clLoading: ConstraintLayout
     lateinit var progress: ProgressBar
     lateinit var recycler: RecyclerView
-    lateinit var tvNahajasSe: TextView
+    lateinit var tvCurrentlyAt: TextView
     lateinit var tvName: TextView
     lateinit var tvFloor: TextView
     lateinit var img: ImageView
@@ -43,7 +42,7 @@ class FragmentMyLocation : Fragment() {
             clLoading = root.findViewById(R.id.clLoading) as ConstraintLayout
             progress = root.findViewById(R.id.progressBar) as ProgressBar
             img = root.findViewById(R.id.imageView) as ImageView
-            tvNahajasSe = root.findViewById(R.id.textViewNahajasSe) as TextView
+            tvCurrentlyAt = root.findViewById(R.id.textViewNahajasSe) as TextView
             tvName = root.findViewById(R.id.tvImeLokacije) as TextView
             tvFloor = root.findViewById(R.id.tvNadstropje) as TextView
             recycler = root.findViewById(R.id.recyclerView) as RecyclerView
@@ -56,7 +55,7 @@ class FragmentMyLocation : Fragment() {
                     tvName.text = activityMain.currentRoom?.name
                     tvFloor.text = activityMain.currentFloor?.name
                     img.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
-                    tvNahajasSe.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
+                    tvCurrentlyAt.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
                     tvName.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
                     divider.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
                     tvFloor.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }

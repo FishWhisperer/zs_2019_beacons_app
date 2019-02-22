@@ -65,7 +65,7 @@ class MrFirestorage {
         }
     }
 
-    // ce bi na firestorage imeli vec buildingov oz. json tipa array namesto object bi naj baje to delovalo
+    // if we had a json file of arraytype instead of a single object, we would have to use this fun instead
     // https://stackoverflow.com/questions/33381384/how-to-use-typetoken-generics-with-gson-in-kotlin
     fun downloadJsonArray() {
         val storageRef = storage.reference

@@ -26,8 +26,8 @@ class FragmentSettings : Fragment() {
 
     lateinit var chart: LineChart
     lateinit var cl: ConstraintLayout
-    lateinit var tvNadstropje: TextView
-    lateinit var tvSoba: TextView
+    lateinit var tvCurrentFloor: TextView
+    lateinit var tvCurrentRoom: TextView
 
     val rnd: Random = Random()
 
@@ -35,40 +35,37 @@ class FragmentSettings : Fragment() {
         val root = inflater.inflate(R.layout.fragment_settings, container, false)
         cl = root.findViewById(R.id.clSettings) as ConstraintLayout
         chart = root.findViewById(R.id.chart) as LineChart
-        tvNadstropje = root.findViewById(R.id.tvSettingsNadstropje) as TextView
-        tvSoba = root.findViewById(R.id.tvSettingsImeSobe) as TextView
+        tvCurrentFloor = root.findViewById(R.id.tvSettingsNadstropje) as TextView
+        tvCurrentRoom = root.findViewById(R.id.tvSettingsImeSobe) as TextView
 
-        tvNadstropje.text = activityMain.currentFloor?.name
-        tvSoba.text = activityMain.currentRoom?.name
+        tvCurrentFloor.text = activityMain.currentFloor?.name
+        tvCurrentRoom.text = activityMain.currentRoom?.name
 
         // GRAPH DATA
-        // napolni dataObjects s podatki
+        // fill dataObjects with data
         // test start random hardcoded data
         var dataObjects = GraphData()
-        var mapiraj = mutableMapOf<Int, Int>()
+        var hoursInDay = mutableMapOf<Int, Int>()
         for (i in 0..23) {
-            mapiraj[i] = rnd.nextInt(10)
+            hoursInDay[i] = rnd.nextInt(10)
         }
-        Log.d(TAG, "NANA")
         for (j in 0..5) {
-            dataObjects.data.add(Obisk("soba $j", mapiraj))
+            dataObjects.data.add(Visit("room $j", hoursInDay))
         }
-        Log.d(TAG, "NANGAA")
         val entries = ArrayList<Entry>()
-        for (i in 0..(dataObjects.data[0].obisk.size-1)) {
+        for (i in 0..(dataObjects.data[0].count.size-1)) {
             Log.d(TAG, "$i")
-            entries.add(Entry(i.toFloat(), dataObjects.data[0].obisk[i]!!.toFloat()))
+            entries.add(Entry(i.toFloat(), dataObjects.data[0].count[i]!!.toFloat()))
         }
-
-        // test end napolni entries z dataObjects
+        // test end
 
         /* ACTUAL DATa
         val entries = ArrayList<Entry>()
-        for (data in activityMain.pogostostObiska.data) {
-            if (data.imeSobe == activityMain.currentRoom?.name) {
-                for (i in 0..data.obisk.size) {
-                    if (data.obisk[i]!! > 0)
-                        entries.add(Entry(i.toFloat(), data.obisk[i]!!.toFloat()))
+        for (data in activityMain.roomVisitingFrequency.data) {
+            if (data.roomName == activityMain.currentRoom?.name) {
+                for (i in 0..data.count.size) {
+                    if (data.count[i]!! > 0)
+                        entries.add(Entry(i.toFloat(), data.count[i]!!.toFloat()))
                         Log.d(TAG, "entry added")
                 }
             }
@@ -78,9 +75,9 @@ class FragmentSettings : Fragment() {
 
         // GRAPH LOOKS
         // data settings
-        val dataSet = LineDataSet(entries, "Pogostost nahajanja v sobi ob določeni uri")
+        val dataSet = LineDataSet(entries, resources.getString(R.string.graph_label))
         dataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        dataSet.label = "Število obiskov prostora ob določeni uri"
+        dataSet.label = resources.getString(R.string.graph_dataset_label)
         dataSet.setDrawFilled(true)
         dataSet.setDrawCircles(false)
         dataSet.lineWidth = 0.7f
@@ -112,7 +109,7 @@ class FragmentSettings : Fragment() {
         chart.setDrawGridBackground(false)
         chart.setDrawBorders(false)
         chart.description = Description().apply { text = "" }
-        chart.setNoDataText("Podatki niso na voljo.")
+        chart.setNoDataText(resources.getString(R.string.graph_data_unavailable))
 
         // interaction settings
         chart.setTouchEnabled(false)
@@ -132,10 +129,10 @@ class FragmentSettings : Fragment() {
 }
 
 class GraphData (
-    var data: ArrayList<Obisk> = ArrayList()
+    var data: ArrayList<Visit> = ArrayList()
 )
 
-class Obisk (
-    var imeSobe: String,
-    var obisk: MutableMap<Int, Int>
+class Visit (
+    var roomName: String,
+    var count: MutableMap<Int, Int>
 )
