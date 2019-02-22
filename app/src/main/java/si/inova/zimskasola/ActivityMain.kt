@@ -43,7 +43,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
     OnGeofencingTransitionListener {
 
     val PREFS_FILENAME = "si.inova.zimskasola.prefs"
-    var pogostostObiska: GraphData = GraphData()
+    var roomVisitingFrequency: GraphData = GraphData()
     var lastTimeNotedHour: Int? = null
 
     val firestorage = MrFirestorage()
@@ -75,12 +75,12 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // shared prefs za merjenje pogostosti obiska prostora
+        // shared prefs for noting the visiting hours
         /*val prefs = this.getSharedPreferences(PREFS_FILENAME, 0)
         if (prefs.contains(PREFS_KEY)) {
             val gson = Gson()
-            pogostostObiska = gson.fromJson(prefs.getString(PREFS_KEY, ""), GraphData::class.java)
-            Log.d(TAG, "I found saved data:\n$pogostostObiska")
+            roomVisitingFrequency = gson.fromJson(prefs.getString(PREFS_KEY, ""), GraphData::class.java)
+            Log.d(TAG, "I found saved data:\n$roomVisitingFrequency")
             emptySaveFile = false
         } else {
             emptySaveFile = true
@@ -123,7 +123,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
         CoroutineScope(Dispatchers.Default).launch {
             if (isNetworkAvailable() && setBluetooth(true) && gpsStatusCheck()) {
                 runOnUiThread {
-                    Toast.makeText(context, "Povezujem se s strežnikom...", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, resources.getString(R.string.toast_connecting_to_the_db), Toast.LENGTH_SHORT).show()
                 }
                 getData()
             } else {
@@ -148,12 +148,12 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
             Log.d(TAG, "fail")
             runOnUiThread {
                 AlertDialog.Builder(this@ActivityMain)
-                    .setMessage("Prišlo je do napake pri komunikaciji s strežnikom. Poskusim ponovno?")
-                    .setPositiveButton("Da") { dialog, _ ->
+                    .setMessage(resources.getString(R.string.toast_connecting_error))
+                    .setPositiveButton(resources.getString(R.string.yes)) { dialog, _ ->
                         dialog.dismiss()
                         initialize()
                     }
-                    .setNegativeButton("Ne") { dialog, _ ->
+                    .setNegativeButton(resources.getString(R.string.no)) { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()
@@ -263,6 +263,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                 switchFragment(0)
                 bootingUp = false
             } else {
+                // send notification to the user that we detected a new room
                 val notificationIntent = Intent(this, ActivityMain::class.java)
                 notificationIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 notificationIntent.putExtra("EXTRAID", 1234)
@@ -271,36 +272,34 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                 val mBuilder = NotificationCompat.Builder(this, "Beacons id")
                     .setSmallIcon(R.drawable.notification_icon_background)
                     .setContentTitle(currentRoom?.name)
-                    .setContentText("Zaznali smo nov prostor. Preveri njegove detajle.")
+                    .setContentText(resources.getString(R.string.notification_message))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                 with(NotificationManagerCompat.from(this)) { notify(1234, mBuilder.build()) }
 
-                // shrani obisk, če ga še nismo
+                // if we havent yet noted the visit at this hour, note it
                 /*var rightNow = Calendar.getInstance()
                 var currentHourIn24Format = rightNow.get(Calendar.HOUR_OF_DAY)
                 if (lastTimeNotedHour == null || lastTimeNotedHour != currentHourIn24Format) {
-                    // dobi obisk sobe, v kateri smo
                     if (emptySaveFile == true) {
-                        // ustvari nov
-                        var mapiraj = mutableMapOf<Int, Int>()
+                        var hourAndVisits = mutableMapOf<Int, Int>()
                         for (i in 0..23) {
-                            mapiraj[i] = 0
+                            hourAndVisits[i] = 0
                         }
                         for (floor in currentBuilding!!.floors) {
                             for (room in floor.rooms) {
-                                pogostostObiska.data.add(Obisk(room.name, mapiraj))
+                                roomVisitingFrequency.data.add(Visit(room.name, hourAndVisits))
                             }
                         }
                     } else {
-                        var obisk = pogostostObiska.data.find {
-                            it.imeSobe == currentRoom?.name
+                        var visit = roomVisitingFrequency.data.find {
+                            it.roomName == currentRoom?.name
                         }
-                        obisk?.obisk!![currentHourIn24Format] = +1
+                        visit?.count!![currentHourIn24Format] = +1
                     }
                     lastTimeNotedHour = currentHourIn24Format
-                    saveData(pogostostObiska)
+                    saveData(roomVisitingFrequency)
                 }*/
             }
         }
@@ -324,7 +323,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
 
     private fun startLocation() {
         // testing start
-        // ustvari ograjo okol moje tesne lokacije, drugače je treba ta naslov prebrat iz jsona (naslov stavbe)
+        // creates a geofence on my actual location for testing purposes, in reality we need to read them from the db
         /*geofence.create("Tyrševa 30, Maribor")
         while (!geofence.geocodingSuccess) {
             if (geofence.geocodingFailed) {
@@ -332,8 +331,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
             }
         }
         if (geofence.geocodingSuccess) {
-            // prižgi ograjo (myFences[0] ker je bila narejena samo ena, če jih je več je treba vse prižgat
-            // in potem ob prehodu v tisto ograjo aplikacija zazna v kateri stavbi se nahajamo
+            // since i only created one fence for testing, take the first one out of myFences array
             smartLocation.geofencing().add(geofence.myFences[0]).start(context)
             smartLocation.location(provider).start(context)
             smartLocation.activity().start(context)
@@ -345,7 +343,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
         }*/
         // testing end
 
-        // če mamo več stavb je mormo za vsako posebi nardit ograjo
+        // if we have multiple buildings, we need to create geofences for each of them
          if (firestorage.buildings != null) {
             for (building in firestorage.buildings!!) {
                 geofence.create(building.description)
@@ -398,7 +396,7 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                 location.longitude
             )
             Log.d(TAG, "Current location: $text")
-            // preveri če se nahajamo znotraj naših ograj
+            // checks if user is currently inside any of our geofences
             for (fence in geofence.myFences) {
                 val fenceLocation = Location(LocationManager.GPS_PROVIDER)
                 fenceLocation.longitude = fence.longitude
@@ -408,22 +406,21 @@ class ActivityMain: AppCompatActivity(), MrBeacon.Listener, OnLocationUpdatedLis
                     Log.d(TAG, "Inside of the geofence: ${fence.toGeofence()}!")
                     insideGeofence = true
                     /*
-                    // v bazi poišči stavbo, ki ima naslov, ki je znotraj te ograje
-
+                    // find the building from database inside this geofence
                     currentBuilding = firestorage.buildings?.find { building ->
                         building.description == fence.requestId
                     }
                     */
 
                     // testing start
-                    // hardcoded prva stavba po vrsti (ker mamo itak samo eno)
+                    // hardcoded the first one since there is only one in our test case
                     currentBuilding = firestorage.buildings?.get(0)
                     // testing end
 
                     runOnUiThread {
                         tvMainHeader.text = currentBuilding?.title
                         tvMainSubHeader.text = currentBuilding?.description
-                        Toast.makeText(this, "Iščem prostor, kjer se nahajaš...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, resources.getString(R.string.toast_beacon_scanning), Toast.LENGTH_SHORT).show()
                     }
                     beaconScanner.start()
                 } else {

@@ -32,7 +32,7 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" android:id="@+id/tvMainHeader"
-                    android:fontFamily="@font/montserrat_extrabold" android:text="@string/tv_main_header"
+                    android:fontFamily="@font/montserrat_extrabold" android:text="@string/tv_beacons_main_title"
                     android:textAllCaps="true"/>
             <TextView
                     android:layout_width="wrap_content"

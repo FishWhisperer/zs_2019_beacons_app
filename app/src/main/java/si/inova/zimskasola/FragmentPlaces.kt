@@ -17,10 +17,10 @@ private const val ANIM_LENGTH : Long = 1000
 class FragmentPlaces: Fragment() {
 
     lateinit var activityMain: ActivityMain
-    lateinit var tvProstori: TextView
+    lateinit var tvRooms: TextView
     lateinit var recycler: RecyclerView
 
-    var vseSobe: ArrayList<Soba>? = null
+    var rooms: ArrayList<RoomRecycler>? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         var root = inflater.inflate(R.layout.fragment_places, container, false)
@@ -28,39 +28,39 @@ class FragmentPlaces: Fragment() {
             Log.d(TAG, "Fragment places: activityMain.currentBuilding was null, initializing...")
             activityMain.initialize()
         } else {
-            tvProstori = root.findViewById(R.id.textViewProstori) as TextView
+            tvRooms = root.findViewById(R.id.textViewProstori) as TextView
             recycler = root.findViewById(R.id.recyclerProstori) as RecyclerView
 
-            tvProstori.apply { alpha = 0f }
+            tvRooms.apply { alpha = 0f }
             recycler.apply { alpha = 0f }
 
             recycler.layoutManager = LinearLayoutManager(this.context)
 
-            vseSobe = ArrayList()
-            var stej = 0
+            rooms = ArrayList()
+            var counter = 0
             for (floor in activityMain.currentBuilding?.floors!!) {
                 for (room in floor.rooms) {
-                    if (stej == 0)
-                        vseSobe?.add(Soba(true, floor.name, room.name))
+                    if (counter == 0)
+                        rooms?.add(RoomRecycler(true, floor.name, room.name))
                     else
-                        vseSobe?.add(Soba(false, floor.name, room.name))
-                    stej++
+                        rooms?.add(RoomRecycler(false, floor.name, room.name))
+                    counter++
                 }
-                stej = 0
+                counter = 0
             }
 
-            recycler.adapter = RecyclerAdapterPlaces(vseSobe!!, this.context!!)
+            recycler.adapter = RecyclerAdapterPlaces(rooms!!, this.context!!)
             recycler.itemAnimator = DefaultItemAnimator()
 
-            tvProstori.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
+            tvRooms.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
             recycler.apply { animate().alpha(1f).setDuration(ANIM_LENGTH).setListener(null) }
         }
         return root
     }
 }
 
-class Soba (
-    var prva: Boolean,
-    var nadstropje: String,
-    var soba: String
+class RoomRecycler (
+    var isFirst: Boolean,
+    var floor: String,
+    var room: String
 )

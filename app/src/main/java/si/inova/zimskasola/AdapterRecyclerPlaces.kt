@@ -8,23 +8,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.zimskasola.R
 import kotlinx.android.synthetic.main.recycler_places_item.view.*
 
-class RecyclerAdapterPlaces(val items: ArrayList<Soba>, val context: Context) : RecyclerView.Adapter<ViewHolderPlaces>() {
+class RecyclerAdapterPlaces(val items: ArrayList<RoomRecycler>, val context: Context) : RecyclerView.Adapter<ViewHolderPlaces>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderPlaces {
         return ViewHolderPlaces(LayoutInflater.from(parent.context).inflate(R.layout.recycler_places_item, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolderPlaces, position: Int) {
-        if (items[position].prva) {
+        if (items[position].isFirst) {
             holder.header.visibility = View.VISIBLE
             holder.default.visibility = View.GONE
 
-            holder.txtHeaderFloor.text = items[position].nadstropje
-            holder.txtHeaderRoom.text = items[position].soba
+            holder.txtHeaderFloor.text = items[position].floor
+            holder.txtHeaderRoom.text = items[position].room
         } else {
             holder.header.visibility = View.GONE
             holder.default.visibility = View.VISIBLE
-            holder.txtDefaultRoom.text = items[position].soba
+            holder.txtDefaultRoom.text = items[position].room
         }
     }
 

@@ -9,7 +9,7 @@
             android:layout_height="match_parent" android:id="@+id/clSettings">
 
         <TextView
-                android:text="@string/tv_settings_beacons"
+                android:text="@string/tv_beacons_main_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/textView"
                 app:layout_constraintStart_toStartOf="parent"
@@ -17,7 +17,7 @@
                 android:layout_marginTop="16dp" android:textSize="30sp"
                 android:fontFamily="@font/merriweather_bolditalic" android:textColor="@color/colorPrimaryDark"/>
         <TextView
-                android:text="Nadstropje"
+                android:text="@string/my_location_floor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/tvSettingsNadstropje"
                 app:layout_constraintTop_toBottomOf="@+id/textView"
@@ -25,7 +25,7 @@
                 android:layout_marginTop="32dp" android:textColor="@color/colorPrimaryDark"
                 android:fontFamily="@font/montserrat_bold"/>
         <TextView
-                android:text="@string/tvSettingsImeSobe"
+                android:text="@string/tv_settings_room_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/tvSettingsImeSobe"
                 app:layout_constraintTop_toBottomOf="@+id/tvSettingsNadstropje"
@@ -33,7 +33,7 @@
                 android:layout_marginTop="16dp" android:fontFamily="@font/montserrat_extrabold"
                 android:textSize="18sp" android:textAllCaps="true" android:textColor="@color/colorPrimaryDark"/>
         <TextView
-                android:text="@string/tvSettingsOpis"
+                android:text="@string/tv_settings_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/textView5"
                 app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"

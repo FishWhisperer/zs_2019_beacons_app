@@ -1,4 +1,4 @@
-// ta razred je v tem trenutku neuporaben, saj vse podatke pridobimo iz json datoteke
+// this class is useless right now, because we get all of our data from firestorage
 
 package si.inova.zimskasola
 
@@ -9,22 +9,22 @@ private const val COLLECTION_PATH = "locations"
 private const val SUB_COLLECTION_PATH = "places"
 private const val SUB_SUB_COLLECTION_PATH = "description_items"
 
-data class Lokacija (
+data class BuildingStore (
     var documentId: String = "",
     val address: String = "",
     val name: String = "",
-    var places: ArrayList<Prostor> = ArrayList()
+    var places: ArrayList<RoomStore> = ArrayList()
 )
 
-data class Prostor (
+data class RoomStore (
     var documentId: String = "",
     val floor: String = "",
     val image: String = "",
     val name: String = "",
-    var descriptionItems: ArrayList<Stvari> = ArrayList()
+    var descriptionItems: ArrayList<ThingStore> = ArrayList()
 )
 
-data class Stvari (
+data class ThingStore (
     val subtitle: String = "",
     val title: String = "",
     val type: String = "",
@@ -34,7 +34,7 @@ data class Stvari (
 class MrFirestore {
     private val db = FirebaseFirestore.getInstance()
 
-    var locations = ArrayList<Lokacija>()
+    var locations = ArrayList<BuildingStore>()
 
     var loadedPlaces = false
     var loadedPlacesData = false
@@ -49,7 +49,7 @@ class MrFirestore {
                 }
                 locations.clear()
                 for (document in data.documents) {
-                    val location = document.toObject(Lokacija::class.java)!!
+                    val location = document.toObject(BuildingStore::class.java)!!
                     location.documentId = document.id
                     locations.add(location)
                 }
@@ -70,7 +70,7 @@ class MrFirestore {
                 }
                 locations[locationIndex].places.clear()
                 for (document in data.documents) {
-                    val place = document.toObject(Prostor::class.java)!!
+                    val place = document.toObject(RoomStore::class.java)!!
                     place.documentId = document.id
                     locations[locationIndex].places.add(place)
 
@@ -94,7 +94,7 @@ class MrFirestore {
                 locations[locationIndex].places[placeIndex].descriptionItems.clear()
                 data.map {
                     locations[locationIndex].places[placeIndex].descriptionItems.add(
-                        it.toObject(Stvari::class.java)
+                        it.toObject(ThingStore::class.java)
                     )
                 }
                 loadedPlacesData = true
